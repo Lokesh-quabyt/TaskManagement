@@ -1,6 +1,6 @@
 ﻿namespace TaskManagement.Dtos
 {
-    public class Register
+    public class RegisterDto
     {
         public required string UserName { get; set; }
 
