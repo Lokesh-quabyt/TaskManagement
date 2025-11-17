@@ -4,7 +4,9 @@ using TaskManagement.Data;
 using TaskManagement.Models;
 using TaskManagement.Dtos;
 using Microsoft.EntityFrameworkCore;
-
+using TaskManagement.Services;
+using Microsoft.AspNetCore.Identity;
+using TaskManagement.Helper;
 namespace TaskManagement.Controllers
 {
     
@@ -13,9 +15,11 @@ namespace TaskManagement.Controllers
     public class AuthController :Controller 
     {
         private readonly ApplicationDbContext db;
-        public AuthController(ApplicationDbContext db)
+        private readonly IJwtService jwtService;
+        public AuthController(ApplicationDbContext db,IJwtService jwtService)
         {
             this.db = db;
+            this.jwtService = jwtService;
         }
 
         [HttpPost("register")]
@@ -25,11 +29,11 @@ namespace TaskManagement.Controllers
             User user = new User
             {
                 UserName = request.UserName,
-                HashPassword = request.Password,
+                HashPassword = PasswordHasher.Hash(request.Password),
                 Role = request.Role
             };
 
-            await db.users.AddAsync(user);
+            await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
 
             return Ok("User is Stored in the database");
@@ -38,16 +42,16 @@ namespace TaskManagement.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<User>> Login(LoginDto login)
         {
-            var user = await db.users.FirstOrDefaultAsync(x => x.UserName == login.UserName);
+            var user = await db.Users.FirstOrDefaultAsync(x => x.UserName == login.UserName);
 
-            if(user == null || !PasswordHandler.verify(login.Password, user.HashPassword))
+            if(user == null || !PasswordHasher.Verify(login.Password, user.HashPassword))
             {
                 return Unauthorized();
             }
 
-            var token = jwt.generateToken(user);
+            var token = jwtService.GenerateToken(user);
 
-            return Ok({ token,user.Role});
+            return Ok(new { token, user.Role });
         }
     }
 }

@@ -11,7 +11,7 @@ namespace TaskManagement.Data
             
         }
 
-        public DbSet<User> users { get; set; }
+        public DbSet<User> Users { get; set; }
        public DbSet<TaskItem> Tasks { get; set; }
     }
 }

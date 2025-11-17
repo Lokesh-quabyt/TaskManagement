@@ -26,7 +26,7 @@ namespace TaskManagement.Services
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(config["jwtkey"]));
+                Encoding.UTF8.GetBytes(config["Jwt:key"]));
 
             var cred = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
 
@@ -40,10 +40,6 @@ namespace TaskManagement.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }    
-            
-
-          
-
           
     
     }
